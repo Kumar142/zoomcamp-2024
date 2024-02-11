@@ -1,0 +1,32 @@
+-- Creating external table referring to gcs path
+CREATE OR REPLACE EXTERNAL TABLE `first-gcp-project-412101.ny_taxi.green_taxi_data_2022`
+OPTIONS (
+  format = 'PARQUET',
+  uris = ['gs://gaurav-gcp-mage-bucket123/green_taxi_2022.parquet']
+);
+-- Check gree trip 2022 data
+SELECT * FROM first-gcp-project-412101.ny_taxi.green_taxi_data_2022 limit 10;
+
+-- Create a table from external table
+CREATE OR REPLACE TABLE first-gcp-project-412101.ny_taxi.green_tripdata_2022_nonpartition
+AS
+SELECT * FROM first-gcp-project-412101.ny_taxi.green_taxi_data_2022;
+
+SELECT COUNT(*)
+FROM first-gcp-project-412101.ny_taxi.green_taxi_data_2022;
+
+SELECT COUNT(DISTINCT PULocationID)
+FROM first-gcp-project-412101.ny_taxi.green_taxi_data_2022;
+
+SELECT COUNT(DISTINCT PULocationID)
+FROM first-gcp-project-412101.ny_taxi.green_tripdata_2022_nonpartition;
+
+SELECT COUNT(*)
+FROM first-gcp-project-412101.ny_taxi.green_tripdata_2022_nonpartition
+WHERE fare_amount = 0;
+
+
+CREATE OR REPLACE TABLE first-gcp-project-412101.ny_taxi.green_taxi_data_2022_partitioned
+PARTITION BY DATE(lpep_pickup_datetime)
+CLUSTER BY PUlocationID AS
+SELECT * FROM first-gcp-project-412101.ny_taxi.green_taxi_data_2022;
